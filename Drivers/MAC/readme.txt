@@ -1,1 +1,0 @@
-CH340/CH341 USB to serial port MAC OS driver£¬supports 32/64-bit operation system, contains instructions for use.
