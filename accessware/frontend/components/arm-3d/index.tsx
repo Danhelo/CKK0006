@@ -1,16 +1,20 @@
 "use client";
 
-import { Suspense, Component, type ReactNode } from "react";
+import { Suspense, Component, useRef, type ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { SERVO_REST } from "@/lib/constants";
+import type { Angles } from "@/lib/types";
 import { ArmModel } from "./arm-model";
 import { LightingRig } from "./lighting";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { Ground } from "./ground";
 import { Trail } from "./trail";
 import { DivergenceHotspots } from "./divergence-hotspots";
+import { JoystickModel } from "./parts/joystick-model";
+import { DirectionTestEffect } from "./direction-test-effect";
+import { JOYSTICK_POSITION } from "./joystick-test-choreography";
 import type { Arm3DProps } from "./types";
 
 // ── Error Boundary ──
@@ -64,7 +68,14 @@ export function Arm3D({
   onJointSelect,
   onJointHover,
   selectedJoint,
+  showJoystick = false,
+  joystickGlow,
+  joystickEffect,
 }: Arm3DProps) {
+  // Shared ref: ArmModel writes its spring-interpolated angles here each frame,
+  // JoystickModel reads them to derive tilt mechanically.
+  const springAnglesRef = useRef<Angles>([...SERVO_REST]);
+
   return (
     <div className="h-full w-full" style={{ background: "#0C0C0C" }}>
       <CanvasErrorBoundary>
@@ -87,7 +98,24 @@ export function Arm3D({
               onJointSelect={onJointSelect}
               onJointHover={onJointHover}
               selectedJoint={selectedJoint}
+              springAnglesRef={showJoystick ? springAnglesRef : undefined}
             />
+
+            {showJoystick && (
+              <>
+                <JoystickModel
+                  position={JOYSTICK_POSITION}
+                  detail={detail}
+                  springAnglesRef={springAnglesRef}
+                  glowIntensity={joystickGlow}
+                />
+                <DirectionTestEffect
+                  effect={joystickEffect ?? null}
+                  position={JOYSTICK_POSITION}
+                  detail={detail}
+                />
+              </>
+            )}
 
             <Ground detail={detail} />
 

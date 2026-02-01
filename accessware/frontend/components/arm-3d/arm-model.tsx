@@ -16,6 +16,7 @@ export function ArmModel({
   onJointSelect,
   onJointHover,
   selectedJoint,
+  springAnglesRef,
 }: ArmModelProps) {
   const { baseHeight, segment1Length, segment2Length } = ARM_DIMENSIONS;
 
@@ -49,6 +50,11 @@ export function ArmModel({
     }
 
     fingerSpreadRef.current = ((s4 - 90) / 180) * 0.12;
+
+    // Expose spring-interpolated angles to siblings (e.g. JoystickModel)
+    if (springAnglesRef) {
+      springAnglesRef.current = currentAngles.current;
+    }
   });
 
   return (

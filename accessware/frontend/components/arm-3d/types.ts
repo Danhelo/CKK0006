@@ -13,6 +13,9 @@ export interface Arm3DProps {
   onJointSelect?: (jointIndex: number | null) => void;
   onJointHover?: (jointIndex: number | null) => void;
   selectedJoint?: number | null;
+  showJoystick?: boolean;
+  joystickGlow?: number;
+  joystickEffect?: string | null;
 }
 
 export interface ArmModelProps {
@@ -21,4 +24,6 @@ export interface ArmModelProps {
   onJointSelect?: (jointIndex: number | null) => void;
   onJointHover?: (jointIndex: number | null) => void;
   selectedJoint?: number | null;
+  /** Shared ref — ArmModel writes its spring-interpolated angles here each frame. */
+  springAnglesRef?: React.MutableRefObject<Angles>;
 }

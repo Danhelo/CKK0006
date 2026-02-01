@@ -1,45 +1,12 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
 import { Arm3D } from "@/components/arm-3d";
 import { useIntersectionReveal } from "@/hooks/use-intersection-reveal";
-import type { Angles } from "@/lib/types";
-import { SERVO_REST } from "@/lib/constants";
-
-// Demo keyframes: rest → reach → grip → retract → rest
-const DEMO_POSES: Angles[] = [
-  [90, 90, 90, 90],    // rest
-  [90, 60, 120, 90],   // reach forward
-  [90, 60, 120, 40],   // close gripper
-  [90, 90, 90, 40],    // retract
-  [120, 70, 110, 90],  // rotate + reach
-  [120, 70, 110, 30],  // grip
-  [90, 90, 90, 90],    // back to rest
-];
-
-const POSE_DURATION_MS = 2000;
+import { useJoystickChoreography } from "@/components/arm-3d/use-joystick-choreography";
 
 export function DemoPreview() {
   const { ref, isVisible } = useIntersectionReveal();
-  const [currentPose, setCurrentPose] = useState(0);
-  const [angles, setAngles] = useState<Angles>(SERVO_REST);
-
-  useEffect(() => {
-    if (!isVisible) return;
-
-    const interval = setInterval(() => {
-      setCurrentPose((prev) => {
-        const next = (prev + 1) % DEMO_POSES.length;
-        setAngles(DEMO_POSES[next]);
-        return next;
-      });
-    }, POSE_DURATION_MS);
-
-    // Start first pose
-    setAngles(DEMO_POSES[0]);
-
-    return () => clearInterval(interval);
-  }, [isVisible]);
+  const choreography = useJoystickChoreography(isVisible, 1.0);
 
   return (
     <section ref={ref} className="px-6 py-24">
@@ -83,18 +50,25 @@ export function DemoPreview() {
                 style={{ background: "var(--amber-400)" }}
               />
               <span className="text-[10px] font-medium" style={{ color: "var(--text-tertiary)" }}>
-                Demo Mode
+                {choreography.currentLabel}
               </span>
             </div>
             <span className="font-mono text-[10px] tabular-nums" style={{ color: "var(--text-tertiary)" }}>
-              [{angles.join(", ")}]
+              [{choreography.armAngles.join(", ")}]
             </span>
           </div>
 
           {/* 3D Canvas */}
           <div className="h-72 md:h-96">
             {isVisible && (
-              <Arm3D angles={angles} autoRotate detail="low" />
+              <Arm3D
+                angles={choreography.armAngles}
+                autoRotate
+                detail="low"
+                showJoystick
+                joystickGlow={choreography.joystickGlow}
+                joystickEffect={choreography.activeEffect}
+              />
             )}
           </div>
         </div>

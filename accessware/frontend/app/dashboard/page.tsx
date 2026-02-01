@@ -6,6 +6,7 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import { TestRunner } from "@/components/test-runner";
 import { RecordMode } from "@/components/record-mode";
 import { useTestRunner } from "@/hooks/use-test-runner";
+import { useJoystickChoreography } from "@/components/arm-3d/use-joystick-choreography";
 import { Layers, Radio, GitCompare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,8 @@ const ComparisonShowcase = dynamic(
 export default function DashboardPage() {
   const runner = useTestRunner();
   const [activePanel, setActivePanel] = useState<"runner" | "record" | "compare">("runner");
+  const showIdleDemo = runner.runState === "idle" && !runner.selectedTest;
+  const choreography = useJoystickChoreography(showIdleDemo);
 
   return (
     <div className="flex h-screen flex-col" style={{ background: "var(--background)" }}>
@@ -39,10 +42,13 @@ export default function DashboardPage() {
           style={{ borderColor: "var(--border)" }}
         >
           <Arm3D
-            angles={runner.predictedAngles}
+            angles={showIdleDemo ? choreography.armAngles : runner.predictedAngles}
             actualTrail={runner.actualTrail}
             designedTrail={runner.designedTrail}
             showDesigned={!!runner.testDefinition}
+            showJoystick={showIdleDemo}
+            joystickGlow={showIdleDemo ? choreography.joystickGlow : undefined}
+            joystickEffect={showIdleDemo ? choreography.activeEffect : null}
           />
         </div>
 

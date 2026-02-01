@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect, useCallback } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import {
@@ -9,20 +9,14 @@ import {
   Vignette,
 } from "@react-three/postprocessing";
 import * as THREE from "three";
-import { ArmModel } from "@/components/arm-3d/arm-model";
-import { LightingRig } from "@/components/arm-3d/lighting";
 import type { Angles } from "@/lib/types";
 import { SERVO_REST } from "@/lib/constants";
-
-// ── Dramatic poses the arm cycles through ──
-const HERO_POSES: Angles[] = [
-  [90, 45, 135, 90], // Full extension
-  [135, 60, 120, 40], // Rotated grip
-  [45, 70, 110, 90], // Counter-reach
-  SERVO_REST, // Rest
-];
-
-const POSE_DURATION_MS = 4000;
+import { ArmModel } from "@/components/arm-3d/arm-model";
+import { LightingRig } from "@/components/arm-3d/lighting";
+import { JoystickModel } from "@/components/arm-3d/parts/joystick-model";
+import { DirectionTestEffect } from "@/components/arm-3d/direction-test-effect";
+import { useJoystickChoreography } from "@/components/arm-3d/use-joystick-choreography";
+import { JOYSTICK_POSITION } from "@/components/arm-3d/joystick-test-choreography";
 
 // ── Fog setup (must be inside Canvas) ──
 function SceneFog() {
@@ -39,7 +33,12 @@ function SceneFog() {
 }
 
 // ── Inner scene (must be inside Canvas) ──
-function HeroScene({ angles }: { angles: Angles }) {
+function HeroScene() {
+  const choreography = useJoystickChoreography(true, 0.85);
+
+  // Shared ref: ArmModel writes spring angles, JoystickModel reads them for tilt
+  const springAnglesRef = useRef<Angles>([...SERVO_REST]);
+
   return (
     <>
       <PerspectiveCamera makeDefault position={[4.5, 3.5, 4.5]} fov={35} />
@@ -48,7 +47,23 @@ function HeroScene({ angles }: { angles: Angles }) {
 
       <LightingRig detail="low" />
 
-      <ArmModel angles={angles} detail="low" />
+      <ArmModel
+        angles={choreography.armAngles}
+        detail="low"
+        springAnglesRef={springAnglesRef}
+      />
+
+      <JoystickModel
+        position={JOYSTICK_POSITION}
+        detail="low"
+        springAnglesRef={springAnglesRef}
+        glowIntensity={choreography.joystickGlow}
+      />
+      <DirectionTestEffect
+        effect={choreography.activeEffect}
+        position={JOYSTICK_POSITION}
+        detail="low"
+      />
 
       <OrbitControls
         enablePan={false}
@@ -73,19 +88,6 @@ function HeroScene({ angles }: { angles: Angles }) {
 
 // ── Outer component (provides the Canvas) ──
 export function Hero3DBackground() {
-  const [poseIndex, setPoseIndex] = useState(0);
-
-  const cyclePose = useCallback(() => {
-    setPoseIndex((prev) => (prev + 1) % HERO_POSES.length);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(cyclePose, POSE_DURATION_MS);
-    return () => clearInterval(interval);
-  }, [cyclePose]);
-
-  const currentAngles = HERO_POSES[poseIndex];
-
   return (
     <div
       style={{
@@ -104,7 +106,7 @@ export function Hero3DBackground() {
         }}
       >
         <Suspense fallback={null}>
-          <HeroScene angles={currentAngles} />
+          <HeroScene />
         </Suspense>
       </Canvas>
     </div>

@@ -44,3 +44,17 @@ export const EDGE_HIGHLIGHT = {
   roughness: 0.4,
   metalness: 0.8,
 } as const;
+
+export const JOYSTICK_BASE = {
+  color: "#2E2E2E",
+  roughness: 0.75,
+  metalness: 0.55,
+} as const;
+
+export const JOYSTICK_ACTIVE_RING = {
+  color: "#F5A623",
+  emissive: "#F5A623",
+  emissiveIntensity: 0,
+  roughness: 0.3,
+  metalness: 0.6,
+} as const;
