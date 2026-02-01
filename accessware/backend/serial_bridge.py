@@ -1,7 +1,7 @@
 """Serial bridge to communicate with the CKK0006 robotic arm over USB.
 
-Sends MOVE/READ commands and receives ACK/DONE/READY responses using the
-protocol defined in Sketches/serial_control/serial_control.ino.
+Sends MOVE/READ/PING commands and receives ACK/DONE/READY/PONG/ERR
+responses using the protocol defined in Sketches/serial_control/serial_control.ino.
 
 Provides both a real SerialBridge (pyserial) and a MockSerialBridge for
 development without hardware.
@@ -11,15 +11,17 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import time
 from typing import Protocol
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PORT = "/dev/cu.usbserial-2110"
-DEFAULT_BAUD = 9600
-READ_TIMEOUT = 5.0  # seconds — accounts for blocking MOVE (~3 s at speed 15)
+DEFAULT_PORT = os.environ.get("ACCESSWARE_PORT", "/dev/cu.usbserial-2110")
+DEFAULT_BAUD = int(os.environ.get("ACCESSWARE_BAUD", "9600"))
+READ_TIMEOUT = 5.0  # seconds — base timeout, extended dynamically for slow speeds
 READY_TIMEOUT = 5.0  # seconds — CH340 reset delay on connect
+LOG_SERIAL = os.environ.get("LOG_SERIAL", "").lower() in ("1", "true", "yes")
 
 
 class BridgeProtocol(Protocol):
@@ -31,8 +33,11 @@ class BridgeProtocol(Protocol):
     async def wait_move_done(self) -> None: ...
     async def move(self, angles: list[int], speed: int) -> list[int]: ...
     async def read_angles(self) -> list[int]: ...
+    async def ping(self) -> bool: ...
     @property
     def connected(self) -> bool: ...
+    @property
+    def bridge_type(self) -> str: ...
 
 
 # ---------------------------------------------------------------------------
@@ -67,19 +72,41 @@ class SerialBridge:
         raise TimeoutError("Did not receive READY from Arduino")
 
     def _send(self, cmd: str) -> None:
-        self._serial.write((cmd + "\n").encode("ascii"))
+        data = (cmd + "\n").encode("ascii")
+        if LOG_SERIAL:
+            logger.info("SERIAL TX: %r", cmd)
+        self._serial.write(data)
         self._serial.flush()
 
     def _readline(self) -> str:
         raw = self._serial.readline()
-        return raw.decode("ascii", errors="replace").strip()
+        line = raw.decode("ascii", errors="replace").strip()
+        if LOG_SERIAL and line:
+            logger.info("SERIAL RX: %r", line)
+        return line
 
     def _send_move_cmd(self, angles: list[int], speed: int) -> list[int]:
-        """Send MOVE command, read ACK, return immediately (no DONE wait)."""
+        """Send MOVE command, read ACK, return immediately (no DONE wait).
+
+        Sets serial timeout dynamically based on expected movement duration.
+        Retries once on ACK parse failure (line noise resilience).
+        """
+        # Dynamic timeout: worst case is 180 ticks * speed + hold + buffer
+        from .interpolation import total_duration_ms
+        move_ms = total_duration_ms(speed)
+        self._serial.timeout = max(READ_TIMEOUT, move_ms / 1000.0 + 2.0)
+
         cmd = f"MOVE,{angles[0]},{angles[1]},{angles[2]},{angles[3]},{speed}"
         self._send(cmd)
-        ack = self._readline()  # ACK,a1,a2,a3,a4
-        return _parse_ack(ack)
+        ack = self._readline()
+        try:
+            return _parse_ack(ack)
+        except ValueError:
+            # Retry once — could be line noise or an ERR response
+            logger.warning("ACK parse failed (%r), retrying READ", ack)
+            self._send("READ")
+            ack = self._readline()
+            return _parse_ack(ack)
 
     def _wait_done(self) -> None:
         """Block until DONE is received from the Arduino."""
@@ -88,9 +115,17 @@ class SerialBridge:
             logger.warning("Expected DONE, got: %s", done)
 
     def _send_read(self) -> list[int]:
+        self._serial.timeout = READ_TIMEOUT
         self._send("READ")
         ack = self._readline()
         return _parse_ack(ack)
+
+    def _send_ping(self) -> bool:
+        """Send PING, expect PONG. Returns True if healthy."""
+        self._serial.timeout = 2.0
+        self._send("PING")
+        resp = self._readline()
+        return resp == "PONG"
 
     # -- async public API --------------------------------------------------
 
@@ -119,6 +154,13 @@ class SerialBridge:
 
     async def read_angles(self) -> list[int]:
         return await asyncio.to_thread(self._send_read)
+
+    async def ping(self) -> bool:
+        return await asyncio.to_thread(self._send_ping)
+
+    @property
+    def bridge_type(self) -> str:
+        return "serial"
 
 
 # ---------------------------------------------------------------------------
@@ -170,6 +212,13 @@ class MockSerialBridge:
 
     async def read_angles(self) -> list[int]:
         return list(self._angles)
+
+    async def ping(self) -> bool:
+        return self._connected
+
+    @property
+    def bridge_type(self) -> str:
+        return "mock"
 
 
 # ---------------------------------------------------------------------------

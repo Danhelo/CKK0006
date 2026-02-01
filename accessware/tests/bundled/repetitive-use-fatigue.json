@@ -1,0 +1,40 @@
+{
+  "name": "repetitive-use-fatigue",
+  "description": "Simple press-down motion repeated many times to simulate repetitive use fatigue. Short sequence with high repeat count to test servo consistency and user endurance over sustained operation.",
+  "designed_path": [
+    [90, 90, 90, 90],
+    [90, 60, 120, 50],
+    [90, 60, 120, 50],
+    [90, 60, 120, 90],
+    [90, 90, 90, 90]
+  ],
+  "steps": [
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 500,
+      "label": "rest"
+    },
+    {
+      "angles": [90, 60, 120, 50],
+      "hold_ms": 500,
+      "label": "press down with grip"
+    },
+    {
+      "angles": [90, 60, 120, 50],
+      "hold_ms": 500,
+      "label": "hold press"
+    },
+    {
+      "angles": [90, 60, 120, 90],
+      "hold_ms": 500,
+      "label": "release grip"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 500,
+      "label": "return to rest"
+    }
+  ],
+  "speed": 10,
+  "repeat_count": 10
+}

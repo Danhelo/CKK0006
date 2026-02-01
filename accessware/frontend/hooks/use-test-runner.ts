@@ -127,6 +127,15 @@ export function useTestRunner(): TestRunnerState & TestRunnerActions {
         }
         break;
       }
+      case "predicted_angles": {
+        const pa = msg.angles as Angles;
+        if (pa) {
+          setPredictedAngles(pa);
+          const tip = computeGripperTip(pa);
+          setActualTrail((prev) => [...prev, tip]);
+        }
+        break;
+      }
       case "angles":
         setCurrentAngles(msg.angles);
         break;

@@ -48,6 +48,8 @@ function StepLogEntry({
       style={{
         background: isCurrent ? "var(--amber-glow)" : "transparent",
         borderLeftColor: isCurrent ? "var(--amber-400)" : "transparent",
+        boxShadow: isComplete ? "inset 0 0 0 1px rgba(92, 184, 92, 0.15)" : "none",
+        transition: "all 0.3s ease, box-shadow 0.6s ease",
       }}
     >
       {/* Status dot */}
@@ -190,6 +192,23 @@ export function TestRunner({
           <Square size={14} />
         </button>
       </div>
+
+      {/* ── Progress Bar ── */}
+      {(isRunning || isPaused) && testDefinition && (
+        <div
+          className="h-1.5 overflow-hidden rounded-full"
+          style={{ background: "var(--surface-3)" }}
+        >
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{
+              width: `${((currentStep + 1) / testDefinition.steps.length) * 100}%`,
+              background: "linear-gradient(90deg, var(--amber-600), var(--amber-400))",
+              boxShadow: "0 0 8px rgba(245,166,35,0.6)",
+            }}
+          />
+        </div>
+      )}
 
       {/* ── Repeat / Step indicator ── */}
       {(isRunning || isPaused) && testDefinition && (

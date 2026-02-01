@@ -205,7 +205,7 @@ class TestRunner:
                 start_angles = await self._bridge.send_move(target, speed)
 
                 # Stream predicted angles in real-time while firmware moves
-                move_duration = total_duration_ms(speed)
+                move_duration = total_duration_ms(speed, current_angles, target)
                 stream_start = time.monotonic()
                 for angles, elapsed in interpolate_poses(current_angles, target, speed):
                     if self._cancel:

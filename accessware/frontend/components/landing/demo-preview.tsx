@@ -94,7 +94,7 @@ export function DemoPreview() {
           {/* 3D Canvas */}
           <div className="h-72 md:h-96">
             {isVisible && (
-              <Arm3D angles={angles} autoRotate />
+              <Arm3D angles={angles} autoRotate detail="low" />
             )}
           </div>
         </div>

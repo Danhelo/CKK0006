@@ -163,6 +163,28 @@
   100% { transform: translateY(-40px) scale(0.3); opacity: 0; }
 }
 
+@keyframes gauge-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes number-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes verdict-pop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 /* ── Base Layer ── */
 @layer base {
   * {
@@ -257,6 +279,16 @@
 }
 .animate-chevron {
   animation: chevron-bounce 2s ease-in-out infinite;
+}
+.animate-gauge-fill {
+  animation: gauge-fill 0.7s ease-out both;
+  transform-origin: left;
+}
+.animate-number-reveal {
+  animation: number-reveal 0.5s ease-out both;
+}
+.animate-verdict-pop {
+  animation: verdict-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 /* Stagger delay utilities */

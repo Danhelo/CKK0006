@@ -1,6 +1,12 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useIntersectionReveal } from "@/hooks/use-intersection-reveal";
+
+const ConceptComparison = dynamic(
+  () => import("./concept-comparison").then((m) => m.ConceptComparison),
+  { ssr: false }
+);
 
 export function ConceptSection() {
   const { ref, isVisible } = useIntersectionReveal();
@@ -50,7 +56,7 @@ export function ConceptSection() {
           </p>
         </div>
 
-        {/* Right — diverging paths visualization */}
+        {/* Right — 3D split-screen comparison */}
         <div
           className="flex items-center justify-center transition-all duration-1000 delay-300"
           style={{
@@ -58,78 +64,7 @@ export function ConceptSection() {
             transform: isVisible ? "translateX(0)" : "translateX(30px)",
           }}
         >
-          <svg
-            viewBox="0 0 300 300"
-            className="h-64 w-64 md:h-80 md:w-80"
-            fill="none"
-          >
-            {/* Designed path — clean teal arc */}
-            <path
-              d="M 50 280 Q 150 100 250 40"
-              stroke="var(--teal)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeDasharray="6 4"
-              opacity="0.7"
-              style={{
-                strokeDashoffset: isVisible ? 0 : 400,
-                transition: "stroke-dashoffset 2s ease-out 0.5s",
-              }}
-            />
-            {/* Actual path — rough amber with divergence */}
-            <path
-              d="M 50 280 Q 80 240 100 210 Q 130 170 140 155 Q 155 135 180 110 Q 200 85 220 70 Q 240 55 260 50"
-              stroke="var(--amber-400)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              style={{
-                strokeDasharray: 400,
-                strokeDashoffset: isVisible ? 0 : 400,
-                transition: "stroke-dashoffset 2.5s ease-out 0.8s",
-              }}
-            />
-            {/* Divergence area — faint fill */}
-            <path
-              d="M 50 280 Q 150 100 250 40 L 260 50 Q 200 85 140 155 Q 80 240 50 280 Z"
-              fill="var(--amber-400)"
-              style={{
-                opacity: isVisible ? 0.05 : 0,
-                transition: "opacity 1.5s ease-out 1.5s",
-              }}
-            />
-            {/* Labels */}
-            <text
-              x="245"
-              y="30"
-              fill="var(--teal)"
-              fontSize="10"
-              fontFamily="var(--font-inter)"
-              opacity={isVisible ? 0.8 : 0}
-              style={{ transition: "opacity 0.5s ease-out 2s" }}
-            >
-              designed
-            </text>
-            <text
-              x="255"
-              y="65"
-              fill="var(--amber-400)"
-              fontSize="10"
-              fontFamily="var(--font-inter)"
-              opacity={isVisible ? 0.8 : 0}
-              style={{ transition: "opacity 0.5s ease-out 2.2s" }}
-            >
-              actual
-            </text>
-            {/* Start point */}
-            <circle cx="50" cy="280" r="4" fill="var(--text-tertiary)">
-              <animate
-                attributeName="opacity"
-                values="0.4;1;0.4"
-                dur="2s"
-                repeatCount="indefinite"
-              />
-            </circle>
-          </svg>
+          <ConceptComparison isVisible={isVisible} />
         </div>
       </div>
     </section>

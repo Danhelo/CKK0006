@@ -42,6 +42,7 @@ export type WsOutMessage =
 export type WsInMessage =
   | WsStateMessage
   | WsAnglesMessage
+  | WsPredictedAnglesMessage
   | WsStepCompleteMessage
   | WsTestCompleteMessage
   | WsErrorMessage;
@@ -62,6 +63,14 @@ export interface WsStateMessage {
 export interface WsAnglesMessage {
   type: "angles";
   angles: Angles;
+}
+
+export interface WsPredictedAnglesMessage {
+  type: "predicted_angles";
+  angles: Angles;
+  elapsed_ms: number;
+  step: number;
+  repeat: number;
 }
 
 export interface WsStepCompleteMessage {

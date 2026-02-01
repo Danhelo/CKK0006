@@ -1,0 +1,64 @@
+{
+  "name": "joystick-full-range-sweep",
+  "description": "Cross pattern through all 4 axes at full servo range. Tests base rotation (servo 1) and arm segments (servos 2/3) across their complete 0-180 travel, returning to rest between each axis movement.",
+  "designed_path": [
+    [90, 90, 90, 90],
+    [90, 150, 30, 90],
+    [90, 90, 90, 90],
+    [90, 30, 150, 90],
+    [90, 90, 90, 90],
+    [150, 90, 90, 90],
+    [90, 90, 90, 90],
+    [30, 90, 90, 90],
+    [90, 90, 90, 90]
+  ],
+  "steps": [
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 1000,
+      "label": "rest"
+    },
+    {
+      "angles": [90, 150, 30, 90],
+      "hold_ms": 1000,
+      "label": "full forward (up)"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 500,
+      "label": "return to rest"
+    },
+    {
+      "angles": [90, 30, 150, 90],
+      "hold_ms": 1000,
+      "label": "full back (down)"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 500,
+      "label": "return to rest"
+    },
+    {
+      "angles": [150, 90, 90, 90],
+      "hold_ms": 1000,
+      "label": "full left"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 500,
+      "label": "return to rest"
+    },
+    {
+      "angles": [30, 90, 90, 90],
+      "hold_ms": 1000,
+      "label": "full right"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 1000,
+      "label": "return to rest"
+    }
+  ],
+  "speed": 15,
+  "repeat_count": 3
+}

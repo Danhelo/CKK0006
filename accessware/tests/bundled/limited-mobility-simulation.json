@@ -1,0 +1,64 @@
+{
+  "name": "limited-mobility-simulation",
+  "description": "Same cross-pattern sweep as the full-range test but constrained to plus/minus 20 degrees from center (70-110 range). Simulates a user with limited range of motion on the joystick inputs.",
+  "designed_path": [
+    [90, 90, 90, 90],
+    [90, 110, 70, 90],
+    [90, 90, 90, 90],
+    [90, 70, 110, 90],
+    [90, 90, 90, 90],
+    [110, 90, 90, 90],
+    [90, 90, 90, 90],
+    [70, 90, 90, 90],
+    [90, 90, 90, 90]
+  ],
+  "steps": [
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 1000,
+      "label": "rest"
+    },
+    {
+      "angles": [90, 110, 70, 90],
+      "hold_ms": 1000,
+      "label": "limited forward (up)"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 500,
+      "label": "return to rest"
+    },
+    {
+      "angles": [90, 70, 110, 90],
+      "hold_ms": 1000,
+      "label": "limited back (down)"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 500,
+      "label": "return to rest"
+    },
+    {
+      "angles": [110, 90, 90, 90],
+      "hold_ms": 1000,
+      "label": "limited left"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 500,
+      "label": "return to rest"
+    },
+    {
+      "angles": [70, 90, 90, 90],
+      "hold_ms": 1000,
+      "label": "limited right"
+    },
+    {
+      "angles": [90, 90, 90, 90],
+      "hold_ms": 1000,
+      "label": "return to rest"
+    }
+  ],
+  "speed": 15,
+  "repeat_count": 3
+}

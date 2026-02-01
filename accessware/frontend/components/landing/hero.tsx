@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { StaggeredText } from "./staggered-text";
+
+const Hero3DBackground = dynamic(
+  () => import("./hero-3d-background").then((m) => m.Hero3DBackground),
+  { ssr: false }
+);
 
 export function Hero() {
   const [visible, setVisible] = useState(false);
@@ -27,18 +33,17 @@ export function Hero() {
       ref={sectionRef}
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6"
     >
-      {/* Background — animated grid with parallax */}
-      <div
-        className="pointer-events-none absolute inset-0 grid-pattern"
-        style={{ transform: `translateY(${scrollY * 0.3}px)` }}
-      />
+      {/* 3D Background — blurred arm with DOF */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <Hero3DBackground />
+      </div>
 
-      {/* Radial amber glow */}
+      {/* Radial gradient overlay for text legibility */}
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        className="pointer-events-none absolute inset-0 z-[5]"
         style={{
-          background: "radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%)",
-          transform: `translate(-50%, -50%) translateY(${scrollY * 0.1}px)`,
+          background:
+            "radial-gradient(ellipse at center, transparent 0%, rgba(12,12,12,0.4) 50%, rgba(12,12,12,0.95) 100%)",
         }}
       />
 
@@ -98,11 +103,11 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator — fades on scroll */}
       <div
-        className="absolute bottom-8 flex flex-col items-center gap-2 transition-all duration-1000 delay-[1400ms]"
+        className="absolute bottom-8 flex flex-col items-center gap-2 transition-all duration-500"
         style={{
-          opacity: visible ? 0.6 : 0,
+          opacity: scrollY > 50 ? 0 : visible ? 0.6 : 0,
           color: "var(--text-tertiary)",
         }}
       >

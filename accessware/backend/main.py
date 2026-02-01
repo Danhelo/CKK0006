@@ -4,11 +4,12 @@ Endpoints:
     GET  /tests        — list available tests
     GET  /tests/{name} — load specific test
     POST /tests        — save new test (record mode)
+    GET  /health       — bridge status & diagnostics
     WS   /ws           — bidirectional real-time channel
 
 WebSocket messages (JSON):
-    Frontend → Backend:  run_test, pause, stop, jog, read_angles
-    Backend → Frontend:  state, step_complete, test_complete, angles, error
+    Frontend → Backend:  run_test, pause, stop, jog, read_angles, ping
+    Backend → Frontend:  state, step_complete, test_complete, angles, pong, error
 """
 
 from __future__ import annotations
@@ -91,6 +92,18 @@ async def create_test(data: dict):
     return {"status": "saved", "path": str(path)}
 
 
+@app.get("/health")
+async def health():
+    bridge = await get_bridge()
+    healthy = await bridge.ping()
+    return {
+        "bridge_type": bridge.bridge_type,
+        "connected": bridge.connected,
+        "healthy": healthy,
+        "port": getattr(bridge, "_port", None),
+    }
+
+
 # -- WebSocket ---------------------------------------------------------------
 
 @app.websocket("/ws")
@@ -101,6 +114,7 @@ async def websocket_endpoint(ws: WebSocket):
 
     async def send_state(msg: dict):
         try:
+            logger.info("WS OUT → %s", msg.get("type", "unknown"))
             await ws.send_json(msg)
         except Exception:
             pass
@@ -115,6 +129,7 @@ async def websocket_endpoint(ws: WebSocket):
                 continue
 
             action = msg.get("type", "")
+            logger.info("WS IN  ← %s | %s", action, {k: v for k, v in msg.items() if k != "type"})
 
             if action == "run_test":
                 test_name = msg.get("name")
@@ -156,6 +171,10 @@ async def websocket_endpoint(ws: WebSocket):
             elif action == "read_angles":
                 current = await bridge.read_angles()
                 await ws.send_json({"type": "angles", "angles": current})
+
+            elif action == "ping":
+                healthy = await bridge.ping()
+                await ws.send_json({"type": "pong", "healthy": healthy, "bridge_type": bridge.bridge_type})
 
             else:
                 await ws.send_json({"type": "error", "message": f"Unknown action: {action}"})

@@ -6,7 +6,7 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import { TestRunner } from "@/components/test-runner";
 import { RecordMode } from "@/components/record-mode";
 import { useTestRunner } from "@/hooks/use-test-runner";
-import { Layers, Radio } from "lucide-react";
+import { Layers, Radio, GitCompare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // R3F component needs ssr: false
@@ -15,9 +15,14 @@ const Arm3D = dynamic(
   { ssr: false }
 );
 
+const ComparisonShowcase = dynamic(
+  () => import("@/components/comparison-showcase").then((m) => m.ComparisonShowcase),
+  { ssr: false }
+);
+
 export default function DashboardPage() {
   const runner = useTestRunner();
-  const [activePanel, setActivePanel] = useState<"runner" | "record">("runner");
+  const [activePanel, setActivePanel] = useState<"runner" | "record" | "compare">("runner");
 
   return (
     <div className="flex h-screen flex-col" style={{ background: "var(--background)" }}>
@@ -79,6 +84,20 @@ export default function DashboardPage() {
               <Layers size={12} />
               Record
             </button>
+            <button
+              onClick={() => setActivePanel("compare")}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-wider transition-all",
+              )}
+              style={{
+                color: activePanel === "compare" ? "var(--amber-400)" : "var(--text-tertiary)",
+                borderBottom: activePanel === "compare" ? "2px solid var(--amber-400)" : "2px solid transparent",
+                background: activePanel === "compare" ? "var(--amber-glow)" : "transparent",
+              }}
+            >
+              <GitCompare size={12} />
+              Compare
+            </button>
           </div>
 
           {/* Panel content */}
@@ -98,7 +117,7 @@ export default function DashboardPage() {
                 onPause={runner.pause}
                 onStop={runner.stop}
               />
-            ) : (
+            ) : activePanel === "record" ? (
               <RecordMode
                 currentAngles={runner.currentAngles}
                 capturedPoses={runner.capturedPoses}
@@ -106,6 +125,8 @@ export default function DashboardPage() {
                 onCapture={runner.capturePose}
                 onSave={runner.saveTest}
               />
+            ) : (
+              <ComparisonShowcase />
             )}
           </div>
 

@@ -72,28 +72,49 @@ export function SolutionSection() {
                 Accessware Dashboard
               </span>
             </div>
-            {/* Skeleton content */}
-            <div className="flex gap-4 p-4">
-              {/* 3D area */}
-              <div
-                className="flex h-32 flex-1 items-center justify-center rounded"
-                style={{ background: "var(--surface-2)" }}
-              >
-                <div
-                  className="h-16 w-12 rounded"
-                  style={{
-                    background: "linear-gradient(180deg, var(--surface-4), var(--surface-3))",
-                    boxShadow: "0 0 20px rgba(245,166,35,0.1)",
-                  }}
-                />
+            {/* Before / After comparison */}
+            <div className="grid grid-cols-2 divide-x" style={{ borderColor: "var(--border)" }}>
+              {/* Manual Testing */}
+              <div className="p-4">
+                <p className="mb-2 text-center text-[9px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
+                  Manual Testing
+                </p>
+                <div className="mx-auto mb-3 h-20 w-full rounded" style={{ background: "var(--surface-2)" }}>
+                  <svg viewBox="0 0 200 80" className="h-full w-full" fill="none">
+                    <path d="M 20 60 Q 100 20 180 30" stroke="var(--teal)" strokeWidth="2" strokeDasharray="4 3" opacity="0.6" />
+                    <path d="M 20 60 Q 98 22 180 31" stroke="var(--green-pass)" strokeWidth="2" opacity="0.8" />
+                  </svg>
+                </div>
+                <div className="flex justify-center">
+                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase" style={{ background: "var(--green-pass)", color: "#0C0C0C" }}>
+                    PASS
+                  </span>
+                </div>
               </div>
-              {/* Controls area */}
-              <div className="flex w-24 flex-col gap-2">
-                <div className="h-3 w-full rounded" style={{ background: "var(--surface-3)" }} />
-                <div className="h-6 w-full rounded" style={{ background: "var(--amber-400)", opacity: 0.3 }} />
-                <div className="h-3 w-3/4 rounded" style={{ background: "var(--surface-3)" }} />
-                <div className="h-3 w-full rounded" style={{ background: "var(--surface-3)" }} />
-                <div className="h-3 w-5/6 rounded" style={{ background: "var(--surface-3)" }} />
+
+              {/* Accessware Testing */}
+              <div className="p-4">
+                <p className="mb-2 text-center text-[9px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
+                  Accessware Testing
+                </p>
+                <div className="mx-auto mb-3 h-20 w-full rounded" style={{ background: "var(--surface-2)" }}>
+                  <svg viewBox="0 0 200 80" className="h-full w-full" fill="none">
+                    <path d="M 20 60 Q 100 20 180 30" stroke="var(--teal)" strokeWidth="2" strokeDasharray="4 3" opacity="0.6" />
+                    <path d="M 20 60 Q 60 45 80 35 Q 110 18 130 25 Q 160 32 180 38" stroke="var(--amber-400)" strokeWidth="2" opacity="0.8" />
+                    <circle cx="80" cy="35" r="4" fill="var(--amber-400)" opacity="0.5">
+                      <animate attributeName="r" values="3;5;3" dur="1.5s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx="130" cy="25" r="4" fill="var(--amber-400)" opacity="0.5">
+                      <animate attributeName="r" values="3;5;3" dur="1.5s" repeatCount="indefinite" begin="0.5s" />
+                    </circle>
+                  </svg>
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase" style={{ background: "var(--yellow-warn)", color: "#0C0C0C" }}>
+                    WARNING
+                  </span>
+                  <span className="text-[9px]" style={{ color: "var(--yellow-warn)" }}>2 ergonomic flags</span>
+                </div>
               </div>
             </div>
           </div>

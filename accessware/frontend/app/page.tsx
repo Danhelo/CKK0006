@@ -11,7 +11,19 @@ import { Footer } from "@/components/landing/footer";
 // R3F canvas needs ssr: false
 const DemoPreview = dynamic(
   () => import("@/components/landing/demo-preview").then((m) => m.DemoPreview),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-3xl">
+          <div
+            className="h-72 animate-pulse rounded-lg md:h-96"
+            style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}
+          />
+        </div>
+      </section>
+    ),
+  }
 );
 
 export default function Home() {

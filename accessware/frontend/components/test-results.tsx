@@ -5,6 +5,7 @@ import { CheckCircle, AlertTriangle, XCircle, Clock, Activity, AlertOctagon } fr
 import { cn } from "@/lib/utils";
 import type { TestResult, RangeCoverage } from "@/lib/types";
 import { SERVO_LABELS } from "@/lib/constants";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 const verdictBadge = cva(
   "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-wider",
@@ -25,7 +26,7 @@ const verdictStyles: Record<string, { bg: string; color: string; icon: typeof Ch
   fail: { bg: "var(--red-warm)", color: "#FFF", icon: XCircle },
 };
 
-function RangeBar({ label, value }: { label: string; value: number }) {
+function RangeBar({ label, value, index }: { label: string; value: number; index: number }) {
   return (
     <div className="flex items-center gap-3">
       <span
@@ -36,10 +37,11 @@ function RangeBar({ label, value }: { label: string; value: number }) {
       </span>
       <div className="relative h-2 flex-1 overflow-hidden rounded-full" style={{ background: "var(--surface-3)" }}>
         <div
-          className="h-full rounded-full transition-all duration-700"
+          className="animate-gauge-fill h-full rounded-full transition-all duration-700"
           style={{
             width: `${Math.min(value, 100)}%`,
             background: `linear-gradient(90deg, var(--amber-600), var(--amber-400))`,
+            animationDelay: `${index * 100}ms`,
           }}
         />
       </div>
@@ -47,7 +49,7 @@ function RangeBar({ label, value }: { label: string; value: number }) {
         className="w-10 text-right font-mono text-xs tabular-nums"
         style={{ color: "var(--text-primary)" }}
       >
-        {value.toFixed(0)}%
+        <AnimatedNumber value={value} format="int" suffix="%" duration={800} />
       </span>
     </div>
   );
@@ -83,7 +85,7 @@ export function TestResults({ results }: TestResultsProps) {
       {/* ── Verdict Badge ── */}
       <div className="flex justify-center">
         <div
-          className={verdictBadge({ verdict: worstVerdict })}
+          className={cn(verdictBadge({ verdict: worstVerdict }), "animate-verdict-pop")}
           style={{ background: vs.bg, color: vs.color }}
         >
           <VerdictIcon size={18} />
@@ -106,7 +108,7 @@ export function TestResults({ results }: TestResultsProps) {
         <div className="flex flex-col gap-2.5">
           {(Object.entries(lastResult.range_coverage) as [keyof RangeCoverage, number][]).map(
             ([key, value], i) => (
-              <RangeBar key={key} label={SERVO_LABELS[i]} value={value} />
+              <RangeBar key={key} label={SERVO_LABELS[i]} value={value} index={i} />
             )
           )}
         </div>
@@ -128,7 +130,7 @@ export function TestResults({ results }: TestResultsProps) {
             className="mt-1 font-mono text-2xl font-bold tabular-nums"
             style={{ color: "var(--text-primary)" }}
           >
-            {lastResult.repeatability.toFixed(1)}&deg;
+            <AnimatedNumber value={lastResult.repeatability} format="float" decimals={1} suffix="°" duration={800} />
           </p>
           <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
             {lastResult.repeatability < 2
@@ -160,7 +162,7 @@ export function TestResults({ results }: TestResultsProps) {
                     : "var(--green-pass)",
             }}
           >
-            {lastResult.path_divergence.toFixed(1)}%
+            <AnimatedNumber value={lastResult.path_divergence} format="float" decimals={1} suffix="%" duration={800} />
           </p>
           <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
             from designed path
@@ -211,7 +213,7 @@ export function TestResults({ results }: TestResultsProps) {
           className="font-mono text-sm font-bold tabular-nums"
           style={{ color: "var(--text-primary)" }}
         >
-          {(lastResult.total_time_ms / 1000).toFixed(1)}s
+          <AnimatedNumber value={lastResult.total_time_ms / 1000} format="float" decimals={1} suffix="s" duration={800} />
         </span>
       </div>
     </div>

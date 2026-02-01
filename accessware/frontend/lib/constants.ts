@@ -10,11 +10,11 @@ export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws"
 
 // ── Arm physical dimensions (matching 3D model units) ──
 export const ARM_DIMENSIONS = {
-  baseRadius: 0.8,
-  baseHeight: 0.5,
-  segment1Length: 1.5,
+  baseRadius: 0.6,
+  baseHeight: 0.45,
+  segment1Length: 1.3,
   segment2Length: 1.0,
-  gripperLength: 0.3,
+  gripperLength: 0.65,
   jointRadius: 0.12,
 } as const;
 
